@@ -1,0 +1,26 @@
+menu:
+    Blog: /blog
+    Archive: /blog/archives/
+    Zhihu: https://www.zhihu.com/people/luo-ye-42-22
+    GitHub: https://github.com/luoye-fe
+    Rss: /blog/atom.xml
+
+favicon: /favicon.png
+logo: /favicon.png
+
+# Comment
+# e.g disqus: seansun
+disqus:
+duoshuo: luoye-fe
+
+# Analytics
+# google-analytics:
+ga: UA-78104533-1
+
+# Copyright Infomation
+startyear: 2015
+
+# Font CDN
+#true : use google fonts api, not stable for chinese visitor sometimes, caused by force majeure factor
+#false: use useso fonts api instead of google's, great response speed for chinese visitor
+googlefonts: false
