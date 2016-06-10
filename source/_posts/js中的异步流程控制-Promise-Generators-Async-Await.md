@@ -3,7 +3,7 @@ date: 2016-06-09 08:05:14
 tags:
 ---
 
-异步I/O、事件驱动使JS这个单线程语言在不阻塞的情况下并行的执行很多任务，这带来了性能的极大提升，并且更加符合人们的自然认识（烧一壶水，其间你肯定不会等着水烧开再去做别的事，生活就是异步）。然而异步风格也给流程控制，错误处理带来了更多的麻烦。
+异步I/O、事件驱动使JS这个单线程语言在不阻塞的情况下可以并行的执行很多任务，这带来了性能的极大提升，并且更加符合人们的自然认识（烧一壶水，期间你肯定不会等着水烧开再去做别的事，生活就是异步）。然而异步风格也给流程控制，错误处理带来了更多的麻烦。
 
 
 ## 异步流程控制的解决方案
@@ -22,21 +22,21 @@ f3();
 
 ```js
 var f1 = function(cb){
-  $.ajax({
-    url: '...',
-    type: 'get',
-    success: function(){
-      cb && cb();
-    }
-  })
+	$.ajax({
+		url: '...',
+		type: 'get',
+		success: function(){
+			cb && cb();
+		}
+	})
 }
 
 var f2 = function(){
-  // do something after f1 complete ...
+  	// do something after f1 complete ...
 }
 
 var f3 = function(){
-  // do something else
+  	// do something else
 }
 
 f1(f2);
@@ -47,17 +47,17 @@ f3();
 
 ```js
 f1(function(err, data){
-  f2(function(err, data){
-    f3(function(err, data){
-      f4(function(err, data){
-        f5(function(err, data){
-          f6(function(err, data){
-            // maybe more ...
-          })
-        })
-      })
-    })
-  })
+	f2(function(err, data){
+		f3(function(err, data){
+			f4(function(err, data){
+				f5(function(err, data){
+		  			f6(function(err, data){
+		    			// maybe more ...
+		  			})
+				})
+			})
+		})
+	})
 })
 ```
 
@@ -71,13 +71,13 @@ WTF?!
 
 ```js
 var f1 = function(){
-  setTimeout(function(){
-     Event.trigger('loaded', argvs);
-  }, 2000)
+	setTimeout(function(){
+		Event.trigger('loaded', argvs);
+	}, 2000)
 }
 
 Event.on('loaded', function(argvs){
-  // do something ...
+	// do something ...
 })
 
 f1();
@@ -95,7 +95,42 @@ f1();
 
 > 重点来了！
 
-现在已经是2016年了，`ES` 标准也推进到 `ES6` 了，有了 `bable` 这样的工具，甚至 `ES7` 都不是不可触及的 `feture`，新的标准当然对异步控制做出了很多努力，让我们一个一个来看。  
+现在已经是2016年了，`ES` 的标准一代快过一代，有了 `bable` 这样的工具，甚至 `ES7` 都不再是不可触及的 `feture`了，新的标准当然对异步控制做出了很多努力，让我们一个一个来看。  
 
 * Promise
+
+	[Promise－MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+
+	如上文中提到的示例，如果一个函数的回调层级过深，简直是掉入地狱的体验，那么如果能够把回调的层级抹平，会不会好很多呢？`Promise` 正是一个完美的解决方案。  
+
+	```js
+	var f1 = function(){
+		return new Promise(function(resolve, reject) {
+			setTimeout(function() {
+				console.log(Date.now());
+				resolve();
+			}, 2000)
+		})
+	}
+
+	var f2 = function(){
+		return new Promise(function(resolve, reject) {
+			setTimeout(function() {
+				console.log(Date.now());
+				resolve();
+			}, 2000)
+		})
+	}
+
+	var f3 = function() {
+		console.log(Date.now());
+	}
+	f1().then(function(){
+		f2();
+	}).then(function(){
+		f3();
+	})
+	```
+
+
 
