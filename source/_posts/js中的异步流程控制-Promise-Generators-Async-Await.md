@@ -5,10 +5,9 @@ tags:
 
 异步I/O、事件驱动使JS这个单线程语言在不阻塞的情况下可以并行的执行很多任务，这带来了性能的极大提升，并且更加符合人们的自然认识（烧一壶水，期间你肯定不会等着水烧开再去做别的事，异步才是正常的啊！）。然而异步风格也给流程控制，错误处理带来了更多的麻烦。
 
-
 ## 异步流程控制的解决方案
 
-#### （一）回调
+### 一、回调
 
 回调是JS的基础，函数可以作为参数传递并在恰当的时机执行，比如有下面的三个函数：   
 
@@ -65,7 +64,7 @@ WTF?!
 
 可以看出，回调的缺点很明显，各个函数高度耦合，代码结构混乱，`debug` 困难，等等。  
 
-#### （二）事件监听（观察者模式）
+### 二、事件监听（观察者模式）
 
 另一种解决异步流程控制的方法是采用事件监听的机制，某个事件的触发不再以某个时机为界限，而是取决于某个事件是否触发。  
 
@@ -85,52 +84,71 @@ f1();
 
 唔，很美好的解决方案，但是观察者模式的缺点在其中也体现的很明显，事件的监听和触发散落在不同的地方，程序趋于复杂之后，`Event` 机制的复杂度也极大提高，明显这不是我们追求的。  
 
-#### （三）异步流程控制库
+### 三、异步流程控制库
 
 为了优雅的解决异步流程控制的问题，伟大的猿们前赴后继，产出了很多方案，造就了不少优秀的库，包括但不限于 `q` `co` `async` 等。  
 
 这些库的具体实现或使用方式不在本文的谈论范围，暂时跳过。  
 
-#### （四）新标准、新未来
+### 四、新标准、新未来
 
 > 重点来了！
 
 现在已经是2016年了，`ES` 的标准一代快过一代，有了 `bable` 这样的工具，甚至 `ES7` 都不再是不可触及的 `feture`了，新的标准当然对异步控制做出了很多努力，让我们一个一个来看。  
 
-* Promise
+#### 1、Promise
 
-	[Promise－MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+[Promise - MDN](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise)
 
-	如上文中提到的示例，如果一个函数的回调层级过深，简直是掉入地狱的体验，那么如果能够把回调的层级抹平，会不会好很多呢？`Promise` 正是一个完美的解决方案。  
+所谓的 `Promise` ，就是一个特殊的用于传递异步信息的对象，它代表一个未完成的但是将会完成的操作。也就是说，`Promise` 代表了某个未来才会知道结果的事件（通常是一个异步操作），并且为这个异步事件提供统一的 `API`，能够让使用者精确的控制每一个流程。  
 
-	```js
-	var f1 = function(){
-		return new Promise(function(resolve, reject) {
-			setTimeout(function() {
-				console.log(Date.now());
-				resolve();
-			}, 2000)
-		})
-	}
+说的很复杂，总之一句话，用 `Promise` 能够很好的让我们控制异步操作。继续往下看。  
 
-	var f2 = function(){
-		return new Promise(function(resolve, reject) {
-			setTimeout(function() {
-				console.log(Date.now());
-				resolve();
-			}, 2000)
-		})
-	}
+###### a. 基本 API
 
-	var f3 = function() {
-		console.log(Date.now());
-	}
-	f1().then(function(){
-		f2();
-	}).then(function(){
-		f3();
+* Promise.resolve() 
+* Promise.reject()
+* Promise.prototype.then()
+* Promise.prototype.catch()
+* Promise.all()
+* Promise.race()
+
+(2) 基本理解
+
+* 一个 `Promise` 对象，存在三种状态， `pending(进行中)`、`resolve(已完成)`、`reject(已失败)`。一个异步操作的开始，对应着 `Promise` 的 `pending` 状态，异步操作的结束，对应着另两种状态，当异步操作成功时，对应着 `resolve`状态，失败时对应着 `reject`状态。
+
+* `Promise` 的状态如果发生改变，就不能再被更改，并且，只能由 `pending` 向另外两种状态转变，不能逆，也不能 `resolve` 和 `reject` 互相转化。  
+
+* 
+
+```js
+var f1 = function(){
+	return new Promise(function(resolve, reject) {
+		setTimeout(function() {
+			console.log(Date.now());
+			resolve();
+		}, 2000)
 	})
-	```
+}
+
+var f2 = function(){
+	return new Promise(function(resolve, reject) {
+		setTimeout(function() {
+			console.log(Date.now());
+			resolve();
+		}, 2000)
+	})
+}
+
+var f3 = function() {
+	console.log(Date.now());
+}
+f1().then(function(){
+	f2();
+}).then(function(){
+	f3();
+})
+```
 
 
 
