@@ -113,7 +113,7 @@ f1();
 * Promise.all()
 * Promise.race()
 
-(2) 基本理解
+###### b. 基本理解
 
 * 一个 `Promise` 对象，存在三种状态， `pending(进行中)`、`resolve(已完成)`、`reject(已失败)`。一个异步操作的开始，对应着 `Promise` 的 `pending` 状态，异步操作的结束，对应着另两种状态，当异步操作成功时，对应着 `resolve`状态，失败时对应着 `reject`状态。
 
