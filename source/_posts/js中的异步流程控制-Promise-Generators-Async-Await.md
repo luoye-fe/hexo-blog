@@ -1,4 +1,4 @@
-title: js中的异步流程控制--Promise/Generators/Async/Await
+title: js中的异步流程控制--Promise/Generator/Async/Await
 date: 2016-06-09 08:05:14
 tags:
 ---
@@ -122,12 +122,10 @@ f1();
 ###### c. 实践
 
 * 创建 `Promise` 实例
-
+	
 	```js
 	var promise = new Promise(function(resolve, reject){
-
 		// async operation ...
-
 		if( /* async operation success */ ){
 			resolve(value);
 		}else{
@@ -135,6 +133,7 @@ f1();
 		}
 	})
 	```
+
 	构造函数 `Promise` 接受一个函数作为参数，这个函数又有两个类型为方法的参数，`resolve` 、 `reject`。`resolve` 方法用来将 `promise` 从 `pending` 状态转换到 `resolve` 状态，并且将异步操作成功后返回的内容传递出去，`reject` 方法用来将 `promise` 从 `pending` 状态转换到 `reject` 状态，在异步操作失败时调用，并传递错误信息。  
 
 * 调用
@@ -230,62 +229,145 @@ f1();
 
 * `Promise.prototype.catch()`
 
-	在 `then` 方法中，第二个参数可以对 `Promise` 中的错误进行处理，但是如果一个链式调用的 `Promise` 中，对每一个 `then` 方法进行错误处理，无疑是很让人恼火的方式，`Promise` 为我们提供了一个更加方便的错误处理方式。  
+	在 `then` 方法中，第二个参数可以对当前 `Promise` 中的错误进行处理，为了统一的错误处理，`Promise` 也为我们提供了一个更加方便的错误处理方式。  
 	
-	
-	
-	
-	
-
-
-
-
-
-
-
-	在 `Promise` 中，`then` 方法始终返回一个新的 `Promise` 对象，这样，我们就可以实现 ** 链式 ** 的调用，如：  
+	当一个 `Promise` 实例转变为 `reject` 状态的时候，会调用 `catch` 中的回调函数，并且把首次 `reject` 的错误传递进去。  
 
 	```js
-	sleep(1000)
-		.then(function(){
-			console.log('1000s gone')
+	var promise = new Promise(function(resolve, reject){
+		reject('error test');
+	})
+	promise.catch(function(err){
+		console.log(err); // error test
+	})
+	```
+
+	`catch` 能够捕获 `reject` 主动抛出的错误，同样也能捕获 `Promise` 运行中的错误。  
+	
+	```js
+	var promise = new Promise(function(resolve, reject){
+		throw new Error('error test');
+	})
+	promise.catch(function(err){
+		console.log(err); // Error: error test(…)
+	})
+	```
+
+	`catch` 捕获错误时具有冒泡属性，即在最后调用 `catch` 时，能够捕获到此前所有 `Promise` 中的错误。  
+
+	```js
+	ajaxExample({
+		url: '/test',
+		type: 'GET',
+		data: {
+			page: 2
+		}
+	}).then(function(res){
+		console.log(res)
+	}).catch(function(err){
+		// 处理前两个 Promise 中的错误
+	})
+	```
+
+	上面的示例中，最后的 `catch` 方法能够捕获到前两个 `Promise` 中任意一个产生的错误。  
+
+* `Promise.all()`
+
+	`Promise.all` 方法用于将多个Promise实例，包装成一个新的Promise实例。  
+
+	```js
+	var allPromise = Promise.all([p1, p2, p3])
+	```
+
+	`Promise.all` 接受一个由多个 `Promise` 实例组成的数组，如果数组中存在非 `Promise` 的示例，则 `allPromise` 的状态直接为 `reject`。  
+
+	`allPromise` 的状态由 `p1/p2/p3` 共同决定，三个全部 `resolve` 则 `allPromise` 转变为 `resolve` ，其中任意一个出现 `reject` ，则 `allPromise` 转变为 `reject` 。  
+
+* `Promise.race()`
+	
+	`Promise.race` 方法同样用于将多个Promise实例，包装成一个新的Promise实例。  
+
+	```js
+	var allPromise = Promise.all([p1, p2, p3])
+	```
+
+	与 `Promise.all` 不同的是，如果 `p1/p2/p3` 中有任意一个状态先发生了变化，则 `allPromise` 的状态也会跟着转变，并且状态与最先发生状态改变的 `promise` 一致。  
+
+###### d. 实际应用
+
+* 图片加载
+
+	```js
+	var preloadImg = function(url){
+		return new Promise(function(resolve, reject){
+			var img = new Image();
+			img.onload = resolve;
+			img.onerror = reject;
+			img.src = url;
 		})
+	}
+	
+	// 调用
+	var img1 = preloadImg('./img/test1.png');
+	var img2 = preloadImg('./img/test2.png');
+	var img3 = preloadImg('./img/test3.png');
+	var img4 = preloadImg('./img/test4.png');
+	Promise
+		.all([img1, img2, img3, img4])
 		.then(function(){
-			console.log('will exec immediately after 1000ms')
+			// all img loaded
+			$('.loading').hide();
+		})
+		.catch(function(err){
+			// catch err
+			console.log(err);
 		})
 	```
 
-	很显然，这样的调用方式可以
+* `Promise` 风格的文件读写
 
+	```js
+	var fs = require('fs');
+	var readFile = function(path){
+		return new Promise(function(resolve, reject){
+			fs.readFile(path, 'utf8', function(err, data) {
+				if(err) {
+					reject(err);
+				} else {
+					resolve(data);
+				}
+			});
+		})
+	}
+	var writeFile = function(path, data){
+		return new Promise(function(resolve, reject){
+			fs.writeFile(path, data, 'utf-8', function(err, data){
+				if(err){
+					reject(err);
+				} else {
+					resolve(data);
+				}
+			})
+		})
+	}
 
-```js
-var f1 = function(){
-	return new Promise(function(resolve, reject) {
-		setTimeout(function() {
-			console.log(Date.now());
-			resolve();
-		}, 2000)
-	})
-}
+	// 调用
+	readFile('./test.json')
+		.then(function(data){
+			console.log(data);
+			return data;
+		})
+		.then(function(data){
+			// replace all 'abc' to 'ABC'
+			writeFile.('./test.json', data.replace(/abc/g, 'ABC'));
+		})
+		.catch(function(err){
+			console.log(err);
+		})
+	```
 
-var f2 = function(){
-	return new Promise(function(resolve, reject) {
-		setTimeout(function() {
-			console.log(Date.now());
-			resolve();
-		}, 2000)
-	})
-}
-
-var f3 = function() {
-	console.log(Date.now());
-}
-f1().then(function(){
-	f2();
-}).then(function(){
-	f3();
-})
-```
+#### 2、Generator
+	
 
 
 
