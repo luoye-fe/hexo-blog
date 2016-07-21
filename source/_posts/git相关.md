@@ -37,7 +37,7 @@ tags:
 
 * [Source Tree](https://www.sourcetreeapp.com/)（需翻墙下载）
 
-    > Source Tree 群里有分享文件 1.8.3 版本
+    > 前端群里有分享文件 1.8.3 版本
 
 ## git 其他
 
