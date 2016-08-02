@@ -15,7 +15,8 @@ mixin posts()
                             != item.title
                     +postInfo(item)
                     .post-content
-                        != item.content.replace(/\n/,'').replace(/\n/,'').replace(/\n/,'').replace(/\n/,'').match(/.*\n/)[0]
+                        - var desc = item.desc || ''
+                        != desc === '' ? '' : desc + '<br><br>'
                     a.read-more(href= url_for(item.path))!= __('more')
         - })
 
