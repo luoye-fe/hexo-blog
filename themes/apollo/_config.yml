@@ -1,9 +1,9 @@
 menu:
+    Index: https://luoyefe.com
     Blog: /blog
-    Archive: /blog/archives/
+    Archives: /blog/archives/
     Zhihu: https://www.zhihu.com/people/luo-ye-42-22
-    GitHub: https://github.com/luoye-fe
-    Rss: /blog/atom.xml
+    Github: https://github.com/luoye-fe
 
 favicon: /favicon.png
 logo: /favicon.png
