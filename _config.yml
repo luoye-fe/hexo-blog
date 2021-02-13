@@ -8,7 +8,7 @@ subtitle:
 description: luoye, blog, coder
 author: Luoye
 language: zh-cn
-timezone:
+timezone: Asia/Shanghai
 
 # URL
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
@@ -38,10 +38,12 @@ post_asset_folder: true
 relative_link: false
 future: true
 highlight:
+  enable: false
+prismjs:
   enable: true
+  preprocess: true
   line_number: true
-  auto_detect: false
-  tab_replace:
+  tab_replace: ''
 
 # Category & Tag
 default_category: uncategorized
@@ -66,10 +68,10 @@ pagination_dir: page
 theme: apollo
 
 archive_generator:
-    per_page: 0
-    yearly: false
-    monthly: false
-    daily: false
+  per_page: 0
+  yearly: false
+  monthly: false
+  daily: false
 
 # Deployment
 ## Docs: http://hexo.io/docs/deployment.html
@@ -77,3 +79,6 @@ deploy:
   type: git
   repo: git@github.com:luoye-fe/luoye-fe.github.io.git
   branch: master
+
+marked:
+  langPrefix: line-numbers language-
